@@ -1,5 +1,5 @@
-#Forwarding Bridge Server for SmartThings Edge drivers
-## Forwarding Bridge Server
+# Forwarding Bridge Server for SmartThings Edge drivers
+## Description
 The forwarding bridge server (subsequently referred to as 'server') included in this repository has broader capability beyond support for this particular use case (Shelly Motion Sensor).  This section will describe *all* features, as well as highlight how it is used in this particular Shelly Motion Sensor scenario.
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided either as a 3.7x Python source script or a Windows executable program file.  It can read an optional configuration file created by the user (see below).
