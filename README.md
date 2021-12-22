@@ -1,6 +1,6 @@
 # Forwarding Bridge Server for SmartThings Edge drivers
 ## Description
-The forwarding bridge server (subsequently referred to as 'server') is designed as a companion to SmartThings Edge drivers that (1) need to send HTTP requests to destinations outside of the LAN, and (2) need to be able to receive HTTP messages issued by LAN-based devices and applications.
+The forwarding bridge server (subsequently referred to as 'server') is designed as a companion to SmartThings Edge drivers that (1) need to send HTTP requests to destinations outside of the LAN, and (2) need to be able to receive extemperaneous HTTP messages issued by LAN-based devices and applications.
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided either as a 3.7x Python source script or a Windows executable program file.  It can read an optional configuration file created by the user (see below).
 
