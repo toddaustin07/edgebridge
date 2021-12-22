@@ -14,12 +14,14 @@ Edge drivers cannot use any specific port, so this makes it difficult for other 
 
 This server offers a simpler solution:  an Edge driver 'registers' with the server what LAN IP address it is interested in getting messages from.  The LAN device or application is then configured to send its messages to the server (which has a fixed IP/port number).  Then when the server receives those messages, it looks up who is registered to receive them, and then forwards them to the appropriate IP/port number.  If/when the Edge driver port number changes, it simply re-registers the new port number with the server.  No configuration change is needed at the LAN device or application.  A static IP address is typically recommended for the physical device or application.
 #### Example use cases
-1. Shelly Motion Sensor
-There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there none that supports their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.
-2. Blue Iris camera
+Both of the following example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors**.
+
+##### Shelly Motion Sensor
+There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.
+##### Blue Iris camera
 The Blue Iris server allows for configuring actions for a camera whenever it detects motion.  These actions can include a web request.  Today, this is typically directed at a cloud-based SmartApp for SmartThings integration.  But with this solution, the web requests can be directed to the bridge server and forwarded to an Edge driver for 100% local execution.  
 
-Note that the server can be run on the same machine as the Blue Iris server itself.
+Note that the forwarding bridge server can be run on the same machine as the Blue Iris server itself.
 
 ## Installation
 
@@ -34,7 +36,7 @@ SmartThings_Bearer_Token = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 This configuration file is **optional**.
 
-## Run the Server
+## Run the Forwarding Bridge Server
 
 On Mac or Linux, start the server by this command:
 ```
