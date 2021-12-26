@@ -63,7 +63,7 @@ The Edge driver would issue the following HTTP request to the fowarding bridge s
 ```
 [GET | POST] http://192.168.1.140:8088/api/forward?url=<URL string>
 ```
-*URL string* can be any valid URL including paramaters.  Examples:
+*URL string* can be any valid URL including parameters.  Examples:
 - http://www.websitename.com
 - https://http-bin.org/post?key1=key1value&key2=key2value
 - https://api.smartthings.com/v1/devices/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/components/main/capabilities/switch/status
