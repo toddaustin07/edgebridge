@@ -98,4 +98,4 @@ POST http://192.168.1.140:8088/api/register?devaddr=192.168.1.150&hubaddr=192.16
 ```
 
 #### Registrations & Scrubbing
-A hidden file '.registrations' is maintained by the server to keep a persistant list of driver registrations.  Occassionally, drivers or devices may get deleted without issuing a delete registration command to the server.  As a result, orphaned registrations can exist.  However the server will periodically scrub these when it repeatedly fails to reach the registered driver.  Applicable scrub messages will be displayed by the server when this occurs and should be considered normal.
+A hidden file '.registrations' is maintained by the server to keep a persistant list of driver registrations.  Occassionally, Edge drivers or Edge devices may get deleted without issuing a delete registration request to the server.  As a result, orphaned registrations can exist.  However the server will periodically scrub these when it repeatedly fails to reach the registered driver.  Applicable scrub messages will be displayed by the server when this occurs and should be considered normal.
