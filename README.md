@@ -77,6 +77,7 @@ GET http://192.168.1.140:8088/api/forward?url=https://api.wheretheiss.at/v1/sate
 
 ### Forwarding device/app message TO an Edge driver
 Senario:  The Edge driver wants to receive web requests from a LAN-based device or application
+
 The Edge driver sends an HTTP request to the server to **register** a specific device/app address from which it wants to receive messages:
 ```
 POST http://192.168.1.140:8088/api/register?devaddr=<address of device/app to listen to>&hubaddr=<hub IP:port in use by the driver>&edgeid=<Edge device.id>
