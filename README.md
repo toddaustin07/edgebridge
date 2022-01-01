@@ -1,6 +1,6 @@
 # Forwarding Bridge Server for SmartThings Edge drivers
 ## Description
-The forwarding bridge server (subsequently referred to as 'server') is designed as a companion to SmartThings Edge drivers that (1) need to send HTTP requests to destinations outside of the LAN, and (2) need to be able to receive extemperaneous HTTP messages issued by LAN-based devices and applications.
+The forwarding bridge server (subsequently referred to as 'server') is designed as a companion to SmartThings Edge drivers that (1) need to send HTTP requests to destinations outside of the LAN, and/or (2) need to be able to receive extemperaneous HTTP messages issued by LAN-based devices and applications.
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided either as a 3.7x Python source script or a Windows executable program file.  It can read an optional configuration file created by the user (see below).
 
@@ -12,9 +12,9 @@ An additional feature of the server is that it recognizes requests being forward
 ### 2. Forward messages from LAN-based devices or applications TO a specific Edge driver
 Edge drivers cannot use any specific port, so this makes it difficult for other LAN-based configurable devices or applications to be able to send messages directly *TO* an Edge driver without first establishing a unique peer-to-peer or client/server link initiated by the Edge driver.  This is possible, but requires more custom coding on both ends to make it work (discovery, monitoring connection, managing change, etc.).  
 
-This server offers a simpler solution:  an Edge driver 'registers' with the server what LAN IP address it is interested in getting messages from.  The LAN device or application is then configured to send its messages to the server (which has a fixed IP/port number).  Then when the server receives those messages, it looks up who is registered to receive them, and then forwards them to the appropriate IP/port number.  If/when the Edge driver port number changes, it simply re-registers the new port number with the server.  No configuration change is needed at the LAN device or application.  A static IP address is typically recommended for the physical device or application.
+This server offers a simpler solution:  an Edge driver 'registers' with the server what LAN IP address it is interested in getting messages from.  The LAN device or application is then configured to send its messages to the server (which has a fixed IP/port number).  Then when the server receives those messages, it looks up who is registered to receive them, and then forwards them to the appropriate port number on the SmartThings hub.  If/when the Edge driver's assigned port number changes, it simply re-registers the new port number with the server.  No configuration change is needed at the LAN device or application.  (A static IP address is typically recommended for the physical device or application.)
 #### Example use cases
-Both of the following example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors**.
+Both of the following example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors** (https://github.com/toddaustin07/lanmotion).
 
 ##### Shelly Motion Sensor
 There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.
@@ -25,7 +25,7 @@ Note that the forwarding bridge server can be run on the same machine as the Blu
 
 ## Installation
 
-Download the Python script or Windows executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots 
+Download the Python script or Windows executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
 ### Configuration file
 If you want to change the default **port number** of the server (8088), you can do so by creating a configuration file which will be read when the server is started.  This config file can also be used to provide your **SmartThings Bearer Token** if you plan to do any SmartThings API calls.
 The format of the file is as follows:
@@ -58,10 +58,12 @@ For purposes of the examples below, we'll assume the server is located at *192.1
 
 ### Forwarding Edge Driver HTTP Requests
 Scenario:  The Edge driver wants the server to **forward** an HTTP request to somewhere *outside* the LAN
+
+The Edge driver would issue the following HTTP request to the fowarding bridge server:
 ```
 [GET | POST] http://192.168.1.140:8088/api/forward?url=<URL string>
 ```
-*URL string* can be any valid URL including paramaters.  Examples:
+*URL string* can be any valid URL including parameters.  Examples:
 - http://www.websitename.com
 - https://http-bin.org/post?key1=key1value&key2=key2value
 - https://api.smartthings.com/v1/devices/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/components/main/capabilities/switch/status
@@ -75,7 +77,8 @@ GET http://192.168.1.140:8088/api/forward?url=https://api.wheretheiss.at/v1/sate
 
 ### Forwarding device/app message TO an Edge driver
 Senario:  The Edge driver wants to receive web requests from a LAN-based device or application
-The Edge driver sends a request to the server to **register** a specific device/app address from which it wants to receive messages
+
+The Edge driver sends an HTTP request to the server to **register** a specific device/app address from which it wants to receive messages:
 ```
 POST http://192.168.1.140:8088/api/register?devaddr=<address of device/app to listen to>&hubaddr=<hub IP:port in use by the driver>&edgeid=<Edge device.id>
 DELETE http://192.168.1.140:8088/api/register?devaddr=<address of device/app to stop listening to>&hubaddr=<hub IP:port in use by the driver>&edgeid=<Edge device.id>
@@ -95,4 +98,4 @@ POST http://192.168.1.140:8088/api/register?devaddr=192.168.1.150&hubaddr=192.16
 ```
 
 #### Registrations & Scrubbing
-A hidden file '.registrations' is maintained by the server to keep a persistant list of driver registrations.  Occassionally, drivers or devices may get deleted without issuing a delete registration command to the server.  As a result, orphaned registrations can exist.  However the server will periodically scrub these when it repeatedly fails to reach the registered driver.  Applicable scrub messages will be displayed by the server when this occurs and should be considered normal.
+A hidden file '.registrations' is maintained by the server to keep a persistant list of driver registrations.  Occassionally, Edge drivers or Edge devices may get deleted without issuing a delete registration request to the server.  As a result, orphaned registrations can exist.  However the server will periodically scrub these when it repeatedly fails to reach the registered driver.  Applicable scrub messages will be displayed by the server when this occurs and should be considered normal.
