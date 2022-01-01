@@ -21,6 +21,8 @@
 #
 # Reads 'edgebridge.conf' user config file for configuration options (server port, SmartThings Token)
 # Creates and updates '.registrations' file for maintaining Edge driver registration list
+#
+VERSION = '1.2126122052'
 
 import http.server
 import datetime
@@ -121,7 +123,7 @@ def error_proc(hubaddr):
         hubsenderrors[key] = 1
         
 
-def passto_hub(server, method, regrecord):
+def passto_hub(server, regrecord):
 
         hubaddr = regrecord['hubaddr'][0] + ':' + str(regrecord['hubaddr'][1])
 
@@ -130,7 +132,7 @@ def passto_hub(server, method, regrecord):
         else:
             devaddr = regrecord['devaddr'][0]
 
-        url = 'http://' + hubaddr + '/' + devaddr + '/' + method + server.path
+        url = 'http://' + hubaddr + '/' + devaddr + '/' + server.command + server.path
         headers['HOST'] = hubaddr
 
         print (f'Sending POST: {url} to {hubaddr}')
@@ -139,7 +141,7 @@ def passto_hub(server, method, regrecord):
             r = requests.post(url, headers=headers, data='')
 
             if r.status_code == 200:
-                print (f"Message forwarded to Edge device {regrecord['edgeid']}")
+                print (f"Message forwarded to Edge ID {regrecord['edgeid']}")
             else:
                 print (f"\033[91mERROR sending message to Edge hub {regrecord['hubaddr']}: {str(r.status_code)}\033[0m")
         except:
@@ -186,13 +188,13 @@ def verify_ID(id):
 
     idprofile = [8,4,4,4,12]
 
-    id = id.upper()
+    id = id.lower()
     parts = id.split('-')
     if len(parts) == len(idprofile):
         for i in range(len(parts)):
             if len(parts[i]) == idprofile[i]:
                 for x in range(idprofile[i]):
-                    if parts[i][x] not in ('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'):
+                    if parts[i][x] not in ('0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'):
                         return False
             else:
                 return False
@@ -321,6 +323,44 @@ def handle_requests(server, method, path, devaddraddr_tuple):
         http_response(server, 400, "")
 
 
+def proc_registered_requests(server):
+    
+    global regdeletelist
+    global registrations
+    regfound = False
+
+    # First see if this is a message from any registered devices
+
+    for record in registrations:
+        match = False
+        if record['devaddr'][0] == server.client_address[0]:
+            match = True
+            if record['devaddr'][1]:
+                if record['devaddr'][1] != server.client_address[1]:
+                    match = False
+            if match:
+                regfound = True
+                print('\n>>>>> Forwarding to SmartThings hub')
+                passto_hub(server, record)
+                
+    if regfound:
+        http_response(server, 200, "")
+        
+        # update registration list if exceeded pass-to-hub error threshold for any of the registration records
+        # -- this ensures that old no-longer-used ip:port hub addresses get scrubbed from list
+        for item in regdeletelist:   
+            print (f'\nScrubbing registration record: {item}')   
+            registrations.remove(item)
+                
+        if len(regdeletelist) > 0:
+            write_regs(REGSFILENAME, registrations)
+            regdeletelist.clear() 
+    
+        return True
+    
+    else:
+        return False
+
 class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
@@ -328,7 +368,9 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print ('\033[93m' + time.strftime("%c") + f'\033[0m  {self.command} command received from: {self.client_address}')
         print ('Endpoint: ', self.path)
         
-        handle_requests(self, 'POST', self.path, self.client_address)
+        if not proc_registered_requests(self):
+        
+            handle_requests(self, 'POST', self.path, self.client_address)
         
         
     def do_GET(self):
@@ -341,39 +383,8 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         #    print ('Data:\n',self.data_string)
         #print ('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         
-        global regdeletelist
-        global registrations
-        regfound = False
-        
-        # First see if this is a message from any registered devices
-        
-        for record in registrations:
-            match = False
-            if record['devaddr'][0] == self.client_address[0]:
-                match = True
-                if record['devaddr'][1]:
-                    if record['devaddr'][1] != self.client_address[1]:
-                        match = False
-                if match:
-                    regfound = True
-                    print('\n>>>>> Forwarding to SmartThings hub')
-                    passto_hub(self, 'GET', record)
-                    
-        if regfound:
-            http_response(self, 200, "")
+        if not proc_registered_requests(self):
             
-            # update registration list if exceeded pass-to-hub error threshold for any of the registration records
-            # -- this ensures that old no-longer-used ip:port hub addresses get scrubbed from list
-            for item in regdeletelist:   
-                print (f'\nScrubbing registration record: {item}')   
-                registrations.remove(item)
-                    
-            if len(regdeletelist) > 0:
-                write_regs(REGSFILENAME, registrations)
-                regdeletelist.clear()     
-            
-        # Otherwise, handle GET requests from hub
-        else:
             handle_requests(self, 'GET', self.path, self.client_address)
 
 
@@ -437,7 +448,7 @@ if __name__ == '__main__':
         myipAddress =  s.getsockname()[0]
         s.close()
 
-        print ("\n\033[97mForwarding Bridge Server v1.0 (for SmartThings Edge)\033[0m")
+        print (f"\n\033[97mForwarding Bridge Server v{VERSION} (for SmartThings Edge)\033[0m")
         print (f"\033[94m > Serving HTTP on {myipAddress}:{SERVER_PORT}\033[0m\n")
 
         try: 
