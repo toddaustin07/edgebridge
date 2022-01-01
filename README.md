@@ -23,6 +23,11 @@ The Blue Iris server allows for configuring actions for a camera whenever it det
 
 Note that the forwarding bridge server can be run on the same machine as the Blue Iris server itself.
 
+##### LAN Triggers
+Any LAN-based device or application that can be configured to send an HTTP request can trigger an Edge button device for invoking SmartThings automation routines and Rules.  This provides a super-simple way of connecting LAN-based things locally to SmartThings without having the burden of coding a complicated communications interface.  This can easily be expanded to other device types beyond buttons (lights, switches, thermostats, etc.)
+
+See the Edge driver available here -> https://github.com/toddaustin07/lantrigger
+
 ## Installation
 
 Download the Python script or Windows executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
