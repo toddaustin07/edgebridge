@@ -23,6 +23,11 @@ The Blue Iris server allows for configuring actions for a camera whenever it det
 
 Note that the forwarding bridge server can be run on the same machine as the Blue Iris server itself.
 
+##### Phone tracking application
+Another example of an application that can leverage the bridge server to send messages to an Edge driver is my 'experimental' phone tracker app that is available here-> 
+
+This application monitors the presence of a cellphone on the home LAN and reports updates back to a LANPresence Edge driver to provide SmartThings presence devices representing the presence state of the cellphone(s).
+
 ##### LAN Triggers
 Any LAN-based device or application that can be configured to send an HTTP request can trigger an Edge button device for invoking SmartThings automation routines and Rules.  This provides a super-simple way of connecting LAN-based things locally to SmartThings without having the burden of coding a complicated communications interface.  This can easily be expanded to other device types beyond buttons (lights, switches, thermostats, etc.)
 
