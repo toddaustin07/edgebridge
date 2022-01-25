@@ -14,7 +14,7 @@ Edge drivers cannot use any specific port, so this makes it difficult for other 
 
 This server offers a simpler solution:  an Edge driver 'registers' with the server what LAN IP address it is interested in getting messages from.  The LAN device or application is then configured to send its messages to the server (which has a fixed IP/port number).  Then when the server receives those messages, it looks up who is registered to receive them, and then forwards them to the appropriate port number on the SmartThings hub.  If/when the Edge driver's assigned port number changes, it simply re-registers the new port number with the server.  No configuration change is needed at the LAN device or application.  (A static IP address is typically recommended for the physical device or application.)
 #### Example use cases
-Both of the following example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors** (https://github.com/toddaustin07/lanmotion).
+Both of the first 2 example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors** (https://github.com/toddaustin07/lanmotion).
 
 ##### Shelly Motion Sensor
 There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.
@@ -22,6 +22,11 @@ There is currently no official local integration of Shelly's wifi Motion Sensors
 The Blue Iris server allows for configuring actions for a camera whenever it detects motion.  These actions can include a web request.  Today, this is typically directed at a cloud-based SmartApp for SmartThings integration.  But with this solution, the web requests can be directed to the bridge server and forwarded to an Edge driver for 100% local execution.  
 
 Note that the forwarding bridge server can be run on the same machine as the Blue Iris server itself.
+
+##### LAN Triggers
+Any LAN-based device or application that can be configured to send an HTTP request can trigger an Edge button device for invoking SmartThings automation routines and Rules.  This provides a super-simple way of connecting LAN-based things locally to SmartThings without having the burden of coding a complicated communications interface.  This can easily be expanded to other device types beyond buttons (lights, switches, thermostats, etc.)
+
+See the Edge driver available here -> https://github.com/toddaustin07/lantrigger
 
 ## Installation
 
