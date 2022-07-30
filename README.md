@@ -54,7 +54,7 @@ This configuration file is **optional**.
 
 ## Run the Forwarding Bridge Server
 
-On Mac or Linux, start the server by this command:
+On Windows, Mac or Linux with Python 3 available, start the server by this command:
 ```
 python3 edgebridge.py
 ```
@@ -62,6 +62,11 @@ On Windows, start the server by running the downloaded executable:
 ```
 edgebridge
 ```
+On a Raspberry Pi, start the server by running the downloaded executable:
+```
+edgebridge4pi
+```
+
 A good option is to run this in a window where you can monitor the output messages.  You may want to log them permanently to a file as well.
 
 Note that the server creates and maintains a hidden file ('.registrations') which contains records capturing the Edge driver ID, hub address, and LAN device/application IP address to be monitored.  As driver port numbers change due to restarts, the registrations file may contain old records for a short time, but these will eventually be cleared out after 3 failed attempts to communicate with the 'old' port number(s).
