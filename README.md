@@ -37,9 +37,9 @@ See the Edge driver available here -> https://github.com/toddaustin07/lantrigger
 
 This applications comes in three forms:
 
-* Python 3.x script (for any OS platform supporting Python 3)
-* Windows executable (built for Windows 10)
-* Raspberry Pi executable (for OS = Raspbian GNU/Linux 10 (buster), CPU = ARMv7)
+* edgebridge.py:  Python 3.x script (for any OS platform supporting Python 3)
+* edgebridge.exe:  Windows executable (built for Windows 10)
+* edgebridge4pi:  Raspberry Pi executable (for OS = Raspbian GNU/Linux 10 (buster), CPU = ARMv7)
 
 Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
 ### Configuration file
