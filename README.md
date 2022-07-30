@@ -2,7 +2,7 @@
 ## Description
 The forwarding bridge server (subsequently referred to as 'server') is designed as a companion to SmartThings Edge drivers that (1) need to send HTTP requests to destinations outside of the LAN, and/or (2) need to be able to receive extemperaneous HTTP messages issued by LAN-based devices and applications.
 
-The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided either as a 3.7x Python source script or a Windows executable program file.  It can read an optional configuration file created by the user (see below).
+The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file.  It can read an optional configuration file created by the user (see below).
 
 The server includes these capabilities:
 ### 1. Forward HTTP requests from an Edge driver to any URL
@@ -41,6 +41,8 @@ This applications comes in three forms:
 * edgebridge.exe:  Windows executable (built for Windows 10)
 * edgebridge4pi:  Raspberry Pi executable (for OS = Raspbian GNU/Linux 10 (buster), CPU = ARMv7)
 
+If you have a Raspberry Pi with Python 3.x you can run the Python script, but if you don't have Python 3.x, you can use the executable.
+
 Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
 ### Configuration file (optional)
 If you want to change the default **port number** of the server (8088), you can do so by creating a configuration file which will be read when the server is started.  This config file can also be used to provide your **SmartThings Bearer Token** if you plan to do any SmartThings API calls.
@@ -54,7 +56,7 @@ This configuration file is **optional**.
 
 ## Run the Forwarding Bridge Server
 
-On Windows, Mac or Linux with Python 3 available, start the server by this command:
+On Windows, Mac or Linux with Python 3.x available, start the server by this command:
 ```
 python3 edgebridge.py
 ```
