@@ -35,7 +35,7 @@ See the Edge driver available here -> https://github.com/toddaustin07/lantrigger
 
 ## Installation
 
-This applications comes in three forms:
+This application comes in three forms:
 
 * edgebridge.py:  Python 3.x script (for any OS platform supporting Python 3)
 * edgebridge.exe:  Windows executable (built for Windows 10)
