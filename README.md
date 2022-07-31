@@ -119,5 +119,8 @@ DELETE http://192.168.1.140:8088/api/register?devaddr=<address of device/app to 
 POST http://192.168.1.140:8088/api/register?devaddr=192.168.1.150&hubaddr=192.168.1.107:31732&edgeid=3894BE52-09E8-4CFD-AD5C-580DE59B6873
 ```
 
+#### Device or Application Messages
+Once the Edge driver successfully registers with the Bridge Server, the device/app that wants to get a message to a driver simply configures its GET or POST HTTP request to go to the Bridge Server itself.  Once received by the Bridge Server, if the source IP address matches an entry in its registration table, then the message will be automatically forwarded to the registered Edge driver.  In this way, the device/app never needs to know the hub IP address or driver port number.
+
 #### Registrations & Scrubbing
 A hidden file '.registrations' is maintained by the server to keep a persistant list of driver registrations.  Occassionally, Edge drivers or Edge devices may get deleted without issuing a delete registration request to the server.  As a result, orphaned registrations can exist.  However the server will periodically scrub these when it repeatedly fails to reach the registered driver.  Applicable scrub messages will be displayed by the server when this occurs and should be considered normal.
