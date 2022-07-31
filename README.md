@@ -72,6 +72,7 @@ edgebridge4pi
 A good option is to run this in a window where you can monitor the output messages.  You may want to log them permanently to a file as well.
 
 ## Forwarding Bridge Server Interface Specification
+This section is for Edge driver developers or those configuring [Web Requestor](https://github.com/toddaustin07/webrequestor#readme) URLs that use the Bridge Server.
 
 The server uses a simple RESTful API to accept commands from SmartThings Edge drivers.
 
