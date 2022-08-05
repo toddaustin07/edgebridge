@@ -22,7 +22,7 @@
 # Reads 'edgebridge.conf' user config file for configuration options (server port, SmartThings Token)
 # Creates and updates '.registrations' file for maintaining Edge driver registration list
 #
-VERSION = '1.2126122052'
+VERSION = '1.2231072320'
 
 import http.server
 import datetime
@@ -38,8 +38,6 @@ import json
 registrations = []
 hubsenderrors = {}
 regdeletelist = []
-headers = {'Authorization': '',
-           'Content-Type' : 'application/json'}
 
 HTTP_OK = 200
 CONFIGFILENAME = 'edgebridge.cfg'
@@ -69,26 +67,28 @@ def http_response(server, code, responsetosend):
 
 def proc_forward (server, method, path, arg):
 
+    headers = {}
+
     if arg.startswith('url='):
         url = path[path.index('url=')+4:]
         print (f'Sending {method} to {url}')
         
         if 'api.smartthings.com' in path:
             headers['Authorization'] = SMARTTHINGS_TOKEN
-        else:
-            headers['Authorization'] = ''
         
         headers['Host'] = path.split('//')[1].split('/')[0]
-        headers['Accept'] = 'text/html,application/xml,application/json'
+        headers['Accept'] = '*/*'
+        headers['User-Agent'] = 'SmartThings Edge Hub'
         
         try:
             if method in ['post', 'Post', 'POST']:
-                r = requests.post(url, data='', headers=headers, timeout=3)
+                r = requests.post(url, data='', headers=headers, timeout=5)
             elif method in ['get', 'Get', 'GET']:
-                r = requests.get(url, data='', headers=headers, timeout=3)
+                r = requests.get(url, data='', headers=headers, timeout=5)
         except requests.Timeout:
             print ("Internet request timed out")
             http_response(server, 502, "")
+            return
             
         if r.status_code == HTTP_OK:
             print ('Returned data:\n', r.text)
@@ -125,6 +125,8 @@ def error_proc(hubaddr):
 
 def passto_hub(server, regrecord):
 
+        headers = {}
+
         hubaddr = regrecord['hubaddr'][0] + ':' + str(regrecord['hubaddr'][1])
 
         if regrecord['devaddr'][1] != None:
@@ -133,7 +135,7 @@ def passto_hub(server, regrecord):
             devaddr = regrecord['devaddr'][0]
 
         url = 'http://' + hubaddr + '/' + devaddr + '/' + server.command + server.path
-        headers['HOST'] = hubaddr
+        headers['Host'] = hubaddr
 
         print (f'Sending POST: {url} to {hubaddr}')
 
