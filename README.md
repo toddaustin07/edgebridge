@@ -70,14 +70,10 @@ On Windows, start the server by running the downloaded executable:
 ```
 edgebridge
 ```
-On a Raspberry Pi, before you can run the file you downloaded, you need to change the file permissions so it is executable:
+On a Raspberry Pi, before you can run the file you downloaded, you need to change the file permissions so it is executable, using the first command below.  Then you can start the server anytime thereafter using the second command below:
 ```
 chmod +x edgebridge4pi
-```
-
-You only need to change the file permissions once after downloading the file.  From them on, you can start the server by running the server thusly:
-```
-./edgebridge4pi
+./edgebridgepi
 ```
 
 A good option is to run this in a window where you can monitor the output messages.  You may want to log them permanently to a file as well.
