@@ -102,7 +102,7 @@ The Edge driver would issue the following HTTP request to the fowarding bridge s
 POST http://192.168.1.140:8088/api/forward?url=https://http-bin.org/post?key1=key1value&key2=key2value
 GET http://192.168.1.140:8088/api/forward?url=https://api.smartthings.com/v1/devices/80e99446-a656-41e2-9db7-3981f7c0e126/components/main/capabilities/switch/status
 GET http://192.168.1.140:8088/api/forward?url=https://api.wheretheiss.at/v1/satellites/25544
-GET http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::timevaluepair&place=helsinki
+GET http://192.168.1.140:8088/api/forward?urlhttps://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::timevaluepair&place=helsinki
 ```
 
 ### Forwarding device/app message TO an Edge driver
