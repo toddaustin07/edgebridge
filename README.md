@@ -7,6 +7,8 @@ The server itself is simply a Python script that can be run on any 'always on' W
 The server includes these capabilities:
 ### 1. Forward HTTP requests from an Edge driver to any URL
 A limitation of Edge drivers is that the hub platform allows them to communicate to only **local** IP addresses.  This excludes any internet requests or other external RESTful API calls, for example.  With this solution, an Edge driver can send a request to the server to be forwarded outside the LAN, which the server will do and return the response back to the requesting Edge driver.  (My Web Requestor https://github.com/toddaustin07/webrequestor devices can also be used to initiate these requests)
+
+*Please be aware that the server currently does NOT forward an http request data body - only the request head.  This may be added as a future enhancement depending on community requirements.*
 #### SmartThings API calls
 An additional feature of the server is that it recognizes requests being forwarded to the **SmartThings RESTful API**, and using the Bearer Token configured by the user, can forward those requests and return the response, allowing Edge drivers access to any SmartThings API call.  For example, this can allow a driver to get the device status of ANY SmartThings device, and use it in its logic - allowing it to perform SmartApp-like functions.
 ### 2. Forward messages from LAN-based devices or applications TO a specific Edge driver
