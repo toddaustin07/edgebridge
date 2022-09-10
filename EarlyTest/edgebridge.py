@@ -119,8 +119,8 @@ def http_response(server, code, responsetosend):
         
         server.end_headers()
                 
-        if len(responsetosend) > 0:
-            server.wfile.write(bytes(responsetosend, 'UTF-8'))
+        server.wfile.write(bytes(responsetosend, 'UTF-8'))
+        log.debug ('Response sent')
     except:
         log.error (f'HTTP Send error sending response: {responsetosend}')
     
@@ -141,10 +141,11 @@ def proc_forward (server, method, path, arg):
         headers['Accept'] = '*/*'
         headers['User-Agent'] = 'SmartThings Edge Hub'
         
-        if len(server.data_bytes) > 0:
-            headers['Content-Length'] = str(len(server.data_bytes))
-            if 'Content-Type' in server.headers:
-                headers['Content-Type'] = server.headers['Content-Type']
+        if server.data_bytes != None:
+            if len(server.data_bytes) > 0:
+                headers['Content-Length'] = str(len(server.data_bytes))
+                if 'Content-Type' in server.headers:
+                    headers['Content-Type'] = server.headers['Content-Type']
                 
         if 'Accept' in server.headers:
             headers['Accept'] = server.headers['Accept']
@@ -152,7 +153,8 @@ def proc_forward (server, method, path, arg):
             headers['Authorization'] = server.headers['Authorization']
         
         log.debug (f'Headers: {headers}')
-        log.debug (f'Body: {server.data_bytes.decode("utf-8")}')
+        if server.data_bytes:
+            log.debug (f'Body: {server.data_bytes.decode("utf-8")}')
         
         try:
             if method in ['post', 'Post', 'POST']:
@@ -214,7 +216,7 @@ def passto_hub(server, regrecord):
         headers['Host'] = hubaddr
         
         if len(server.data_bytes) > 0:
-            headers['Content-Length'] = len(server.data_bytes)
+            headers['Content-Length'] = str(len(server.data_bytes))
             if 'Content-Type' in server.headers:
                 headers['Content-Type'] = server.headers['Content-Type']
                 
@@ -452,6 +454,7 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         
         # If a ping, just send response and don't display any messages
         if '/api/ping' in self.path:
+            log.debug ('Pingreq')
             http_response(self, 200, "")
             return
         
@@ -459,8 +462,10 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         log.info (f'{self.command} request received from: {self.client_address}')
         log.debug (f'Endpoint: {self.path}')
         
+        self.data_bytes = None
         if 'Content-Length' in self.headers:
             self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
+            
         
         if not proc_registered_requests(self):
         
@@ -471,6 +476,7 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         
         # If a ping, just send response and don't display any messages
         if '/api/ping' in self.path:
+            log.debug ('Pingreq')
             http_response(self, 200, "")
             return
         
@@ -480,6 +486,7 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         #print ('Headers:\n', self.headers)
         #print ('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         
+        self.data_bytes = None
         if 'Content-Length' in self.headers:
             self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
             #print ('Data:\n',self.data_bytes)
