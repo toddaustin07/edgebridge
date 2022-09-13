@@ -14,8 +14,8 @@ networks:
 services:
   edgebridge:
     build: .
-    volumes:
-      - './edgebridge.cfg:/usr/src/app/edgebridge.cfg'
+    # volumes:
+    #   - './edgebridge.cfg:/usr/src/app/edgebridge.cfg'
     ports:
       - "8088:8088"
     dns:
