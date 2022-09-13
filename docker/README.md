@@ -14,6 +14,8 @@ For building and analyzing responses with the Smartthings API, we recommend usin
 
 #### Building the Docker Image (optional)
 
+**FIRST COPY THE edgebridge.py and requirements.txt files into the ./docker directory as docker build cannot see parent folders**
+
 To build the docker image, update the `edgebridge.cfg` file first, replacing the "" with your Smartthings Bearer Token obtained from the instructions in the EdgeBridge root documentation.
 
 Building the image is not required with the provided example docker-config file, which already contains a build command
@@ -31,6 +33,8 @@ docker build .
 ```
 
 ##### Docker-Compose
+
+**FIRST COPY THE edgebridge.py and requirements.txt files into the ./docker directory as docker build cannot see parent folders**
 
 To deploy using docker-compose, simply provide the IP Address Subnet for the network you use, the default gateway (router) IP Address, DNS Server (router) and IP Address.
 
