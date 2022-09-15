@@ -22,7 +22,7 @@
 # Reads 'edgebridge.conf' user config file for configuration options (server port, SmartThings Token)
 # Creates and updates '.registrations' file for maintaining Edge driver registration list
 #
-VERSION = '1.2231072320.002'
+VERSION = '1.2231072320'
 
 import http.server
 import datetime
@@ -54,7 +54,7 @@ def http_response(server, code, responsetosend):
     
     try:
         server.send_response(code)
-        server.send_header("CONTENT-TYPE", 'text/json')
+        server.send_header("CONTENT-TYPE", 'text/xml; charset="utf-8"')
         server.send_header("DATE", datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT"))
         server.send_header("SERVER", 'edgeBridge')
         server.send_header("CONTENT-LENGTH", str(len(responsetosend)))
@@ -65,7 +65,7 @@ def http_response(server, code, responsetosend):
         print (f'\033[91mHTTP Send error sending response: {responsetosend}\033[0m')
     
 
-def proc_forward (server, method, path, arg, payload=None):
+def proc_forward (server, method, path, arg):
 
     headers = {}
 
@@ -82,7 +82,7 @@ def proc_forward (server, method, path, arg, payload=None):
         
         try:
             if method in ['post', 'Post', 'POST']:
-                r = requests.post(url, json=payload, headers=headers, timeout=5)
+                r = requests.post(url, data='', headers=headers, timeout=5)
             elif method in ['get', 'Get', 'GET']:
                 r = requests.get(url, data='', headers=headers, timeout=5)
         except requests.Timeout:
@@ -296,7 +296,7 @@ def proc_register(server, method, arglist):
     write_regs(REGSFILENAME, registrations)
 
 
-def handle_requests(server, method, path, devaddraddr_tuple, payload=None):
+def handle_requests(server, method, path, devaddraddr_tuple):
 
     if '?' in path:
         arg = path.split('?')
@@ -305,10 +305,8 @@ def handle_requests(server, method, path, devaddraddr_tuple, payload=None):
             arglist = arg[1].split('&')
 
             if endpoint[1] in ['api', 'API']:
-                print("endpoint in api")
                 if endpoint[2] in ['forward','Forward','FORWARD']:
-                    print("endpoint in forward")
-                    proc_forward(server, method, path, arglist[0], payload)   
+                    proc_forward(server, method, path, arglist[0])   
                         
                 elif endpoint[2] in ['register','Register','REGISTER']:
                     proc_register(server, method, arglist)
@@ -366,33 +364,27 @@ def proc_registered_requests(server):
         return False
 
 class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def _set_headers(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/json')
-        self.end_headers()
 
     def do_POST(self):
         print ('\n**********************************************************************************')
         print ('\033[93m' + time.strftime("%c") + f'\033[0m  {self.command} command received from: {self.client_address}')
         print ('Endpoint: ', self.path)
-        self._set_headers()
-        print ("in post method")
-        self.data_string = self.rfile.read(int(self.headers['Content-Length']))
-
-        self.send_response(200)
-        self.end_headers()
-
-        payload = json.loads(self.data_string)
+        
         if not proc_registered_requests(self):
         
-            handle_requests(self, 'POST', self.path, self.client_address, payload)
+            handle_requests(self, 'POST', self.path, self.client_address)
         
         
     def do_GET(self):
         print ('\n**********************************************************************************')
         print ('\033[93m' + time.strftime("%c") + f'\033[0m  {self.command} command received from: {self.client_address}')
         print ('Endpoint: ', self.path)
-        payload = None
+        #print ('Headers:\n', self.headers)
+        #if ('Content-Length' in self.headers) or ('CONTENT-LENGTH' in self.headers):
+        #    self.data_string = self.rfile.read(int(self.headers['Content-Length']))
+        #    print ('Data:\n',self.data_string)
+        #print ('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+        
         if not proc_registered_requests(self):
             
             handle_requests(self, 'GET', self.path, self.client_address)
@@ -402,7 +394,6 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print ('\n**********************************************************************************')
         print ('\033[93m' + time.strftime("%c") + f'\033[0m  {self.command} command received from: {self.client_address}')
         print ('Endpoint: ', self.path)
-        payload = None
         
         handle_requests(self, 'DELETE', self.path, self.client_address)
 
