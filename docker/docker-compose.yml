@@ -1,0 +1,26 @@
+version: "3"
+
+networks:
+  edgebridgenet:
+    name: smarthome_network
+    driver: macvlan
+    driver_opts:
+      parent: eth1
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24      # Enter network subnet range
+          gateway: 192.168.1.1        # Enter default gateway
+
+services:
+  edgebridge:
+    build: .
+    # volumes:
+    #   - './edgebridge.cfg:/usr/src/app/edgebridge.cfg'
+    ports:
+      - "8088:8088"
+    dns:
+      - 192.168.1.1                   # Enter DNS Server IP
+    networks:
+      edgebridgenet:
+          ipv4_address: 192.168.1.88  # Enter Local/LAN IP Address
+    restart: unless-stopped
