@@ -62,6 +62,9 @@ SmartThings_Bearer_Token = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 This configuration file is **optional**.
 
+### Docker
+Please see the [README file](https://github.com/toddaustin07/edgebridge/blob/main/docker/README.md) in the docker folder for details about running edgebridge in a Docker container.
+
 ## Run the Forwarding Bridge Server
 
 On Windows, Mac or Linux with Python 3.x available, start the server by this command:
