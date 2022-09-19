@@ -95,7 +95,7 @@ If you want edgebridge to automatically start and run in the background whenever
   
 - Create the following file contents
   - Choose the "ExecStart=" line option that loads the edgebridge file you are using (executable or Python script)
-  - Substitute \<*mydir*> what whatever subdirectory you have edgebridge4pi and its configuration file in
+  - Substitute \<*mydir*> with whatever subdirectory you have edgebridge4pi and its configuration file in
 
   ```
   [Unit]
