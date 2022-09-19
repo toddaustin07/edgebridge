@@ -87,7 +87,7 @@ A good option is to run the bridge server in a window where you can monitor the 
 
 If you want edgebridge to automatically start and run in the background whenever your system boots, follow these steps:
 
-- Create a service file:
+- Create a systemd service file:
   ```
   cd /lib/systemd/system
   sudo nano edgebridge.service
