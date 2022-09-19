@@ -83,6 +83,57 @@ chmod +x edgebridge4pi
 
 A good option is to run the bridge server in a window where you can monitor the output messages.  You may want to log them permanently to a file as well.
 
+### Auto loading at system boot (Raspberry Pi)
+
+If you want edgebridge to automatically start and run in the background whenever your system boots, follow these steps:
+
+- Create a service file:
+  ```
+  cd /lib/systemd/system
+  sudo nano edgebridge.service
+  ```
+  
+- Create the following file contents
+  - Choose the "ExecStart=" line option that loads the edgebridge file you are using (executable or Python script)
+  - Substitute \<*mydir*> what whatever subdirectory you have edgebridge4pi and its configuration file in
+
+  ```
+  [Unit]
+  Description=edgebridge application
+  After=network.target
+
+  [Service]
+  ExecStart=/home/pi/<mydir>/edgebridge4pi
+              -- OR --
+  ExecStart=/usr/bin/python3 /home/pi/<mydir>/edgebridge.py
+  WorkingDirectory=/home/pi/<mydir>
+  Restart=always
+  RestartSec=60
+
+  [Install]
+  WantedBy=multi-user.target
+  ```
+
+*Make sure that your edgebridge.cfg file is in the working directory directory as well.*
+
+- After saving the service file, perform these commands:
+
+  > sudo systemctl daemon-reload
+
+  ^This tells systemd to recognize the new service
+
+  > sudo systemctl enable edgebridge.service
+
+  ^This tells systemd to start the service at boot time
+
+- At any time you can use some of the other systemctl commands, the most useful being:
+
+  * sudo systemctl status edgebridge
+  * sudo systemctl stop edgebridge
+  * sudo systemctl start edgebridge
+
+You can use the Linux **htop** command to confirm that edgebridge is loaded and running.
+
 ## Forwarding Bridge Server Interface Specification
 This section is for Edge driver developers or those configuring [Web Requestor](https://github.com/toddaustin07/webrequestor#readme) URLs that use the Bridge Server.
 
