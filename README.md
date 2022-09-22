@@ -59,7 +59,8 @@ This application comes in three forms:
 
 If you have a Raspberry Pi with Python 3.x you can run the Python script, but if you don't have Python 3.x, you can use the executable.
 
-Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
+Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots (see instructions below for doing this on a Raspberry Pi).
+
 ### Configuration file (optional, but recommended)
 The edgebridge.cfg included in this package provides a template you can use.
 
