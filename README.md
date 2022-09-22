@@ -110,6 +110,13 @@ chmod +x edgebridge4pi
 
 A good option is to run the bridge server in a window where you can monitor the output messages.  You may want to log them permanently to a file as well.
 
+### Debug-level messages
+If you want to enable debug-level messages, start the application with a -d parameter.  For example:
+```
+python3 edgebridge.py -d
+```
+This option will enable you to see the data being received back from forwarded requests.
+
 ### Auto loading at system boot (Raspberry Pi)
 
 If you want edgebridge to automatically start and run in the background whenever your system boots, follow these steps:
