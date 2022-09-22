@@ -87,7 +87,7 @@ If you plan to run edgebridge as a background task or auto-started at boot-up, i
   ```
   tail -f edgebridge.log
   ```
-Logfile output can be disabled when it is no longer needed, as it can potentially grow quite large.
+Logfile output can be disabled when it is no longer needed.  The logfile can potentially grow quite large over time - especially if the -d flag is used (see *Debug-level messages* topic below).
 
 ### Docker
 Please see the [README file](https://github.com/toddaustin07/edgebridge/blob/main/docker/README.md) in the docker folder for details about running edgebridge in a Docker container.
