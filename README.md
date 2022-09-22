@@ -4,17 +4,25 @@ The forwarding bridge server (subsequently referred to as 'server') is designed 
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file.  It can read an optional configuration file created by the user (see below).
 
+### Latest Update
+The latest update includes these enhancements:
+- standardized logging output with control of console vs file logging
+- configurable timeout for forwarded requests
+- forwarding of request body data now supported
+- Optional SmartThings driver device to monitor edgebridge and notify you if down
+
+### Capabilities
 The server includes these capabilities:
-### 1. Forward HTTP requests from an Edge driver to any URL
+#### 1. Forward HTTP requests from an Edge driver to any URL
 A limitation of Edge drivers is that the hub platform allows them to communicate to only **local** IP addresses.  This excludes any internet requests or other external RESTful API calls, for example.  With this solution, an Edge driver can send a request to the server to be forwarded outside the LAN, which the server will do and return the response back to the requesting Edge driver.  (My Web Requestor https://github.com/toddaustin07/webrequestor devices can also be used to initiate these requests)
 
-*Please be aware that the server currently does NOT forward an http request data body - only the request head.  This may be added as a future enhancement depending on community requirements.*
-#### SmartThings API calls
+##### SmartThings API calls
 An additional feature of the server is that it recognizes requests being forwarded to the **SmartThings RESTful API**, and using the Bearer Token configured by the user, can forward those requests and return the response, allowing Edge drivers access to any SmartThings API call.  For example, this can allow a driver to get the device status of ANY SmartThings device, and use it in its logic - allowing it to perform SmartApp-like functions.
-### 2. Forward messages from LAN-based devices or applications TO a specific Edge driver
+#### 2. Forward messages from LAN-based devices or applications TO a specific Edge driver
 Edge drivers cannot use any specific port, so this makes it difficult for other LAN-based configurable devices or applications to be able to send messages directly *TO* an Edge driver without first establishing a unique peer-to-peer or client/server link initiated by the Edge driver.  This is possible, but requires more custom coding on both ends to make it work (discovery, monitoring connection, managing change, etc.).  
 
 This server offers a simpler solution:  an Edge driver 'registers' with the server what LAN IP address it is interested in getting messages from.  The LAN device or application is then configured to send its messages to the server (which has a fixed IP/port number).  Then when the server receives those messages, it looks up who is registered to receive them, and then forwards them to the appropriate port number on the SmartThings hub.  If/when the Edge driver's assigned port number changes, it simply re-registers the new port number with the server.  No configuration change is needed at the LAN device or application.  (A static IP address is typically recommended for the physical device or application.)
+
 #### Example use cases
 ##### Weather Device
 A SmartThings Edge driver to provide weather data uses this bridge server to provide current weather conditions and weather forecasts.  The data is retrieved from various internet weather sources that publish access APIs.
@@ -52,15 +60,33 @@ This application comes in three forms:
 If you have a Raspberry Pi with Python 3.x you can run the Python script, but if you don't have Python 3.x, you can use the executable.
 
 Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
-### Configuration file (optional)
-If you want to change the default **port number** of the server (8088), you can do so by creating a configuration file which will be read when the server is started.  This config file can also be used to provide your **SmartThings Bearer Token** if you plan to do any SmartThings API calls.
+### Configuration file (optional, but recommended)
+The edgebridge.cfg included in this package provides a template you can use
+
+The configuration file provides the ability to specify the following:
+- port number for the server to use (defaults to 8088 if not specified)
+- Your SmartThings Bearer Token if you plan to access the SmartThings RESTful API
+- Timeout value, in seconds, for forwarded requests (defaults to 5 seconds)
+- Message logging control
+  - Turn on/off console and file logging
+  - Specify log file name
+  
 The format of the file is as follows:
 ```
 [config]
-Server_Port = nnnnn
+Server_Port = 8088
 SmartThings_Bearer_Token = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+forwarding_timeout = 5
+console_output = yes
+logfile_output = no
+logfile = edgebridge.log
 ```
-This configuration file is **optional**.
+
+If you plan to run edgebridge as a background task or auto-started at boot-up, it is recommended to disable console output and enable logfile output.  In Linux, the **tail** command can be useful to temporarily monitor the contents of the logfile in realtime:
+  ```
+  tail -f edgebridge.log
+  ```
+Logfile output can be disabled when it is no longer needed, as it can potentially grow quite large.
 
 ### Docker
 Please see the [README file](https://github.com/toddaustin07/edgebridge/blob/main/docker/README.md) in the docker folder for details about running edgebridge in a Docker container.
@@ -133,6 +159,15 @@ If you want edgebridge to automatically start and run in the background whenever
   * sudo systemctl start edgebridge
 
 You can use the Linux **htop** command to confirm that edgebridge is loaded and running.
+
+## Optional edgebridge server monitoring
+A SmartThings driver is available on [this channel](https://bestow-regional.api.smartthings.com/invite/Q1jP7BqnNNlL) that can be used to notify you if edgebridge is not responding for whatever reason.  
+
+Enroll your hub in the channel above and select **EdgeBridge Monitor V1** from the list of drivers to install.  Once the driver is available on your hub, the next time you use the mobile app to perform an *Add device / Scan for nearby devices*, a new device called 'Edgebridge Monitor' will be created in your 'No room assigned' room. Go into device Settings for this new device and configure the Bridge Address and ping frequency in seconds.  
+
+The driver will then proceed to send a short message to the edgebridge server at the interval you specified, and show either 'online' or 'offline' on the device Controls screen.  You can create an automation routine to notify yourself when the status goes to 'offline'
+
+Note that in order to avoid false alarms, if edgebridge does not respond to a ping, the ping will be retried two more times at 5 second intervals before status is changed to 'offline'.
 
 ## Forwarding Bridge Server Interface Specification
 This section is for Edge driver developers or those configuring [Web Requestor](https://github.com/toddaustin07/webrequestor#readme) URLs that use the Bridge Server.
