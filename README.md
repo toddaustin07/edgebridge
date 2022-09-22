@@ -61,7 +61,7 @@ If you have a Raspberry Pi with Python 3.x you can run the Python script, but if
 
 Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots.
 ### Configuration file (optional, but recommended)
-The edgebridge.cfg included in this package provides a template you can use
+The edgebridge.cfg included in this package provides a template you can use.
 
 The configuration file provides the ability to specify the following:
 - port number for the server to use (defaults to 8088 if not specified)
