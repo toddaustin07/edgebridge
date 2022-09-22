@@ -148,7 +148,7 @@ If you want edgebridge to automatically start and run in the background whenever
   WantedBy=multi-user.target
   ```
 
-*Make sure that your edgebridge.cfg file is in the working directory directory as well.*
+*Make sure that your edgebridge.cfg file is in the working directory as well.*
 
 - After saving the service file, perform these commands:
 
