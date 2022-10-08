@@ -215,10 +215,11 @@ def passto_hub(server, regrecord):
         url = 'http://' + hubaddr + '/' + devaddr + '/' + server.command + server.path
         headers['Host'] = hubaddr
         
-        if len(server.data_bytes) > 0:
-            headers['Content-Length'] = str(len(server.data_bytes))
-            if 'Content-Type' in server.headers:
-                headers['Content-Type'] = server.headers['Content-Type']
+        if server.data_bytes != None:
+            if len(server.data_bytes) > 0:
+                headers['Content-Length'] = str(len(server.data_bytes))
+                if 'Content-Type' in server.headers:
+                    headers['Content-Type'] = server.headers['Content-Type']
                 
 
         log.info (f'Sending POST: {url} to {hubaddr}')
