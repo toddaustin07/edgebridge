@@ -134,7 +134,7 @@ Now that you have the edgebridge server up and running and listening for somethi
 ### Forwarding HTTP requests
 The Edge driver must format its request like this:
 ```
-[GET | POST] http://192.168.1.140:8088/api/forward?url=<URL string>
+[GET | POST] http://<edgebridge IP:port>/api/forward?url=<URL string>
 ```
 For more details see the Interface Specification section below.
 
