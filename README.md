@@ -129,6 +129,33 @@ python3 edgebridge.py -d
 ```
 This option will enable you to see the data being received back from forwarded requests.
 
+### Overview - Getting everything else up and running
+Now that you have the edgebridge server up and running and listening for something to do, what you need to do next will depend on how you are going to use it: forward HTTP requests FROM an Edge driver to outside your LAN and/or facilitate a device or application on your LAN in sending requests TO an Edge driver.  Edgebridge can perform either or both functions.
+#### Forwarding HTTP requests
+The Edge driver must format its request like this:
+```
+[GET | POST] http://192.168.1.140:8088/api/forward?url=<URL string>
+```
+For more details see the Interface Specification section below.
+
+#### Sending device/app messages to an Edge device
+You'll have two things to set up for this scenario: (1) the LAN device or application that will be sending the HTTP requests, and (2) the Edge driver that will be receiving the requests and doing something with it.
+##### Set up LAN device or application
+Your device or application will send HTTP requests to notify an Edge driver of something:  a button was pressed, a sensor was triggered, etc.  These HTTP messages will need to be sent according to whatever format the Edge driver expecting.  Also pay attention to whether it should be a POST or a GET request.  An example could be:
+```
+POST http://<edgebridge address>/<unique_identifier>/presence/present
+```
+Note that instead of sending the request directly to the Edge driver (you can't because you don't know its port number), the request is sent to edgebridge.  Edgebridge will then forward the request on to the registered Edge driver.
+
+For more details see the Interface Specification section below.
+
+##### Set up an Edge driver to receive messages
+This task will depend on the particular Edge driver and how it is implemented, but for the companion Edge drivers mentioned earlier (trigger, motion, presence, contact), this typically entails getting a SmartThings device created and then going into device Settings to configure a unique name, device/app LAN address, and edgebridge LAN address.  Once fully configured, the device can then reach out to edgebridge and register its 'interest' in receiving messages from the particular device or application address.
+
+Now when the device or application sends its messages, edgebridge will forward them to the Edge driver which can then act on the request.
+
+For more details see the Interface Specification section below.
+
 ### Auto loading at system boot (Raspberry Pi)
 
 If you want edgebridge to automatically start and run in the background whenever your system boots, follow these steps:
