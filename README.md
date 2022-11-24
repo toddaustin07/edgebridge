@@ -27,7 +27,7 @@ This server offers a simpler solution:  an Edge driver 'registers' with the serv
 ### Example use cases
 
 There are four 'companion' Edge drivers available that work with edgebridge that you can use rather than having to write your own Edge drivers.  At present, these drivers provide support for the following types of devices:  generic triggers, motion, presence, and contact.  Each of these drivers is available from my [shared projects channel](https://bestow-regional.api.smartthings.com/invite/d429RZv8m9lo) for installation on your SmartThings hub:
-* LAN Device Trigger V2b
+* LAN Device Trigger V2b (and as of 11/21/22 there is also available a multi-trigger-in-a-single-device version of this driver)
 * LAN Motion Device Driver
 * LAN Presence Device Driver V1
 * LAN Contact Device Driver V1
