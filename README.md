@@ -135,7 +135,7 @@ If you want edgebridge to automatically start and run in the background whenever
 
 - Create a systemd service file:
   ```
-  cd /lib/systemd/system
+  cd /etc/systemd/system
   sudo nano edgebridge.service
   ```
   
