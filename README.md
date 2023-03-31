@@ -18,33 +18,45 @@ A limitation of Edge drivers is that the hub platform allows them to communicate
 
 ##### SmartThings API calls
 An additional feature of the server is that it recognizes requests being forwarded to the **SmartThings RESTful API**, and using the Bearer Token configured by the user, can forward those requests and return the response, allowing Edge drivers access to any SmartThings API call.  For example, this can allow a driver to get the device status of ANY SmartThings device, and use it in its logic - allowing it to perform SmartApp-like functions.
+
 #### 2. Forward messages from LAN-based devices or applications TO a specific Edge driver
 Edge drivers cannot use any specific port, so this makes it difficult for other LAN-based configurable devices or applications to be able to send messages directly *TO* an Edge driver without first establishing a unique peer-to-peer or client/server link initiated by the Edge driver.  This is possible, but requires more custom coding on both ends to make it work (discovery, monitoring connection, managing change, etc.).  
 
 This server offers a simpler solution:  an Edge driver 'registers' with the server what LAN IP address it is interested in getting messages from.  The LAN device or application is then configured to send its messages to the server (which has a fixed IP/port number).  Then when the server receives those messages, it looks up who is registered to receive them, and then forwards them to the appropriate port number on the SmartThings hub.  If/when the Edge driver's assigned port number changes, it simply re-registers the new port number with the server.  No configuration change is needed at the LAN device or application.  (A static IP address is typically recommended for the physical device or application.)
 
-#### Example use cases
-##### Weather Device
+### Example use cases
+
+There are four 'companion' Edge drivers available that work with edgebridge that you can use rather than having to write your own Edge drivers.  At present, these drivers provide support for the following types of devices:  generic triggers, motion, presence, and contact.  Each of these drivers is available from my [shared projects channel](https://bestow-regional.api.smartthings.com/invite/d429RZv8m9lo) for installation on your SmartThings hub:
+* LAN Device Trigger V2b (and as of 11/21/22 there is also available a multi-trigger-in-a-single-device version of this driver)
+* LAN Motion Device Driver
+* LAN Presence Device Driver V1
+* LAN Contact Device Driver V1
+
+Your device or application, running somewhere on your LAN, can send HTTP requests to change the state of each of these SmartThings devices.  The requests are sent to edgebridge, which then forwards them on to the Edge driver that has registered to receive them.
+
+Examples for how these might be used are included in the use cases below.
+
+#### Weather Device
 A SmartThings Edge driver to provide weather data uses this bridge server to provide current weather conditions and weather forecasts.  The data is retrieved from various internet weather sources that publish access APIs.
 
 Both of the following two example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors** (https://github.com/toddaustin07/lanmotion).
 
-##### Shelly Motion Sensor
-There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.
-##### Blue Iris camera
+#### Shelly Motion Sensor
+There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.  *UPDATE:  my dedicated Shelly Edge driver now supports most common Gen 1 Shelly devices, including the motion sensor!*
+#### Blue Iris camera
 The Blue Iris server allows for configuring actions for a camera whenever it detects motion.  These actions can include a web request.  Today, this is typically directed at a cloud-based SmartApp for SmartThings integration.  But with this solution, the web requests can be directed to the bridge server and forwarded to an Edge driver for 100% local execution.  
 
 Note that the forwarding bridge server can be run on the same machine as the Blue Iris server itself.
 
-##### Phone tracking application
+#### Phone tracking application
 Another example of an application that can leverage the bridge server to send messages to an Edge driver is my experimental phone tracker app that is available here-> https://github.com/toddaustin07/phonepresence
 
-This application monitors the presence of a cellphone on the home LAN and reports updates back to a LANPresence Edge driver to provide SmartThings presence devices representing the present/away state of the cellphone(s).
+This application monitors the presence of a cellphone on the home LAN and reports updates back to a LAN Presence Edge driver to provide SmartThings presence devices representing the present/away state of the cellphone(s). 
 
-##### Ping tracker application
+#### Ping tracker application
 [This application](https://github.com/toddaustin07/PingTracker) runs on an always-on computer on your LAN and issues ping messages to see if the device at the specified IP is answering.  The results are forwarded to a SmartThings Edge LAN presence driver (available on my [test channel](https://bestow-regional.api.smartthings.com/invite/Q1jP7BqnNNlL)).  
 
-##### LAN Triggers
+#### LAN Triggers
 Any LAN-based device or application that can be configured to send an HTTP request can trigger an Edge button device for invoking SmartThings automation routines and Rules.  This provides a super-simple way of connecting LAN-based things locally to SmartThings without having the burden of coding a complicated communications interface.  This can easily be expanded to other device types beyond buttons (lights, switches, thermostats, etc.)
 
 See the Edge driver available here -> https://github.com/toddaustin07/lantrigger
@@ -117,13 +129,13 @@ python3 edgebridge.py -d
 ```
 This option will enable you to see the data being received back from forwarded requests.
 
-### Auto loading at system boot (Raspberry Pi)
+## Auto loading at system boot (Raspberry Pi)
 
 If you want edgebridge to automatically start and run in the background whenever your system boots, follow these steps:
 
 - Create a systemd service file:
   ```
-  cd /lib/systemd/system
+  cd /etc/systemd/system
   sudo nano edgebridge.service
   ```
   
@@ -176,6 +188,33 @@ Enroll your hub in the channel above and select **EdgeBridge Monitor V1** from t
 The driver will then proceed to send a short message to the edgebridge server at the interval you specified, and show either 'online' or 'offline' on the device Controls screen.  You can create an automation routine to notify yourself when the status goes to 'offline'
 
 Note that in order to avoid false alarms, if edgebridge does not respond to a ping, the ping will be retried two more times at 5 second intervals before status is changed to 'offline'.
+
+## Getting everything else up and running - Overview
+Now that you have the edgebridge server up and running and listening for something to do, what you need to do next will depend on how you are going to use it: forward HTTP requests FROM an Edge driver to outside your LAN and/or facilitate a device or application on your LAN in sending requests TO an Edge driver.  Edgebridge can perform either or both functions.
+### Forwarding HTTP requests
+The Edge driver must format its request like this:
+```
+[GET | POST] http://<edgebridge IP:port>/api/forward?url=<URL string>
+```
+For more details see the Interface Specification section below.
+
+### Sending device/app messages to an Edge device
+You'll have two things to set up for this scenario: (1) the LAN device or application that will be sending the HTTP requests, and (2) the Edge driver that will be receiving the requests and doing something with it.
+#### Set up LAN device or application
+Your device or application will send HTTP requests to notify an Edge driver of something:  a button was pressed, a sensor was triggered, etc.  These HTTP messages will need to be sent according to whatever format the Edge driver expecting.  Also pay attention to whether it should be a POST or a GET request.  An example could be:
+```
+POST http://<edgebridge address>/<unique_identifier>/presence/present
+```
+Note that instead of sending the request directly to the Edge driver (you can't because you don't know its port number), the request is sent to edgebridge.  Edgebridge will then forward the request on to the registered Edge driver.
+
+For more details see the Interface Specification section below.
+
+#### Set up an Edge driver to receive messages
+This task will depend on the particular Edge driver and how it is implemented, but for the companion Edge drivers mentioned earlier (trigger, motion, presence, contact), this typically entails getting a SmartThings device created and then going into device Settings to configure a unique name, device/app LAN address, and edgebridge LAN address.  Once fully configured, the device can then reach out to edgebridge and register its 'interest' in receiving messages from the particular device or application address.
+
+Now when the device or application sends its messages, edgebridge will forward them to the Edge driver which can then act on the request.
+
+For more details see the Interface Specification section below.
 
 ## Forwarding Bridge Server Interface Specification
 This section is for Edge driver developers or those configuring [Web Requestor](https://github.com/toddaustin07/webrequestor#readme) URLs that use the Bridge Server.
