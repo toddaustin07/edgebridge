@@ -1,5 +1,5 @@
 #
-# Copyright 2021 Todd Austin
+# Copyright 2021, 2022, 2023 Todd Austin
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at:
@@ -22,7 +22,7 @@
 # Reads 'edgebridge.conf' user config file for configuration options (server port, SmartThings Token)
 # Creates and updates '.registrations' file for maintaining Edge driver registration list
 #
-VERSION = '1.2221091750'
+VERSION = '1.2331031200'
 
 import http.server
 import datetime
@@ -125,6 +125,35 @@ def http_response(server, code, responsetosend):
         log.error (f'HTTP Send error sending response: {responsetosend}')
     
 
+def build_headers(server, path):
+
+    headers = {}
+
+    ignored = ['user-agent', 'host', 'te', 'connection']
+
+    for key, value in server.headers.items():
+        if key.lower() not in ignored:
+            headers[key] = value
+
+    if 'api.smartthings.com' in path:
+        if 'authorization' not in map(str.lower, server.headers.keys()):
+            if len(SMARTTHINGS_TOKEN) > 0:
+                headers['Authorization'] = SMARTTHINGS_TOKEN
+        
+    headers['Host'] = path.split('//')[1].split('/')[0]
+    
+    if 'accept' not in map(str.lower, server.headers.keys()):
+        headers['Accept'] = '*/*'
+        
+    headers['User-Agent'] = 'SmartThings Edge Hub'
+    
+    if server.data_bytes != None:
+        if len(server.data_bytes) > 0:
+            headers['Content-Length'] = str(len(server.data_bytes))
+        
+    return headers
+    
+
 def proc_forward (server, method, path, arg):
 
     headers = {}
@@ -133,25 +162,8 @@ def proc_forward (server, method, path, arg):
         url = path[path.index('url=')+4:]
         log.info (f'Sending {method} to {url}')
         
-        if 'api.smartthings.com' in path:
-            if len(SMARTTHINGS_TOKEN) > 0:
-                headers['Authorization'] = SMARTTHINGS_TOKEN
-        
-        headers['Host'] = path.split('//')[1].split('/')[0]
-        headers['Accept'] = '*/*'
-        headers['User-Agent'] = 'SmartThings Edge Hub'
-        
-        if server.data_bytes != None:
-            if len(server.data_bytes) > 0:
-                headers['Content-Length'] = str(len(server.data_bytes))
-                if 'Content-Type' in server.headers:
-                    headers['Content-Type'] = server.headers['Content-Type']
+        headers = build_headers(server, path)
                 
-        if 'Accept' in server.headers:
-            headers['Accept'] = server.headers['Accept']
-        if 'Authorization' in server.headers:
-            headers['Authorization'] = server.headers['Authorization']
-        
         log.debug (f'Headers: {headers}')
         if server.data_bytes:
             log.debug (f'Body: {server.data_bytes.decode("utf-8")}')
