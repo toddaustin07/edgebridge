@@ -26,16 +26,16 @@ Edgebridge server offers a simpler solution:  an Edge driver 'registers' with th
 
 ### Example use cases
 
-There are four 'companion' Edge drivers available that work with edgebridge that you can use rather than having to write your own Edge drivers.  At present, these drivers provide support for the following types of devices:  generic triggers, motion, presence, contact, and temperature/humdity.  Each of these drivers is available from my [shared projects channel](https://bestow-regional.api.smartthings.com/invite/d429RZv8m9lo) for installation on your SmartThings hub:
+There is a family of 5 Edge drivers available that work with Edgebridge that you can use rather than having to write your own Edge drivers.  At present, these drivers provide support for the following types of devices:  generic triggers, motion, presence, contact, and temperature/humdity.  Each of these drivers is available from my [shared projects channel](https://bestow-regional.api.smartthings.com/invite/d429RZv8m9lo) for installation on your SmartThings hub:
 * LAN Device Trigger V2b (and as of 11/21/22 there is also available a multi-trigger-in-a-single-device version of this driver)
 * LAN Motion Device Driver
 * LAN Presence Device Driver V1
 * LAN Contact Device Driver V1
 * LAN Temp-Humidity Driver V1
 
-Your device or application, running somewhere on your LAN, can send HTTP requests to change the state of each of these SmartThings devices.  The requests are sent to edgebridge, which then forwards them on to the Edge driver that has registered to receive them.
+Your device or application, running somewhere on your LAN, can send HTTP requests to change the state of each of these SmartThings devices.  The requests are sent to Edgebridge, which then forwards them on to the Edge driver that has registered to receive them.
 
-Examples for how these might be used are included in the use cases below.
+Examples for how these might be used are included in the use cases below, which also include *other additional* drivers that use Edgebridge.
 
 #### Weather Device
 A SmartThings Edge driver to provide weather data uses this bridge server to provide current weather conditions and weather forecasts.  The data is retrieved from various internet weather sources that publish access APIs.
@@ -71,6 +71,8 @@ This application comes in three forms:
 * edgebridge4pi:  Raspberry Pi executable (for OS = Raspbian GNU/Linux 10 (buster), CPU = ARMv7)
 
 If you have a Raspberry Pi with Python 3.x you can run the Python script, but if you don't have Python 3.x, you can use the executable.
+
+If you plan to use the Python script, be sure you also have the Python 'requests' module installed via pip3.
 
 Download the Python script or applicable executable file to a folder on your computer.  You can start it manually or preferrably, configure your computer to auto start the program as a service whenever it reboots (see instructions below for doing this on a Raspberry Pi).
 
@@ -121,14 +123,14 @@ chmod +x edgebridge4pi
 ./edgebridge4pi
 ```
 
-A good option is to run the bridge server in a window where you can monitor the output messages.  You may want to log them permanently to a file as well.
+A good option is to run the bridge server in a window where you can monitor the output messages (assuming you have console logging enabled).  You may want to log them permanently to a file as well.
 
 ### Debug-level messages
 If you want to enable debug-level messages, start the application with a -d parameter.  For example:
 ```
 python3 edgebridge.py -d
 ```
-This option will enable you to see the data being received back from forwarded requests.
+This option will enable you to see the data being received back from forwarded requests - useful if you are diagnosing problems.
 
 ## Auto loading at system boot (Raspberry Pi)
 
@@ -189,6 +191,8 @@ Enroll your hub in the channel above and select **EdgeBridge Monitor V1** from t
 The driver will then proceed to send a short message to the edgebridge server at the interval you specified, and show either 'online' or 'offline' on the device Controls screen.  You can create an automation routine to notify yourself when the status goes to 'offline'
 
 Note that in order to avoid false alarms, if edgebridge does not respond to a ping, the ping will be retried two more times at 5 second intervals before status is changed to 'offline'.
+
+It is possible that certain scenarios may cause false offline alerts when edgebridge is super-busy with numerous requests.  This can occur, for example, when the hub reboots for whatever reason and all devices are initialiing at once.  If you have numerous devices that use edgebridge, they can temporarily make it too busy to respond to 'are-you-alive' requests and therefore cause the monitoring device to temporarily show offline.  However this should clear in 30 seconds or so.
 
 ## Getting everything else up and running - Overview
 Now that you have the edgebridge server up and running and listening for something to do, what you need to do next will depend on how you are going to use it: forward HTTP requests FROM an Edge driver to outside your LAN and/or facilitate a device or application on your LAN in sending requests TO an Edge driver.  Edgebridge can perform either or both functions.
