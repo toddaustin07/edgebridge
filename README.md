@@ -8,7 +8,7 @@ The server itself is simply a Python script that can be run on any 'always on' W
 The latest update includes these enhancements:
 - standardized logging output with control of console vs file logging
 - configurable timeout for forwarded requests
-- forwarding of request body data now supported
+- forwarding of request body data and HTTP headers
 - Optional SmartThings driver device to monitor edgebridge and notify you if down
 
 ### Capabilities
