@@ -4,12 +4,8 @@ The forwarding bridge server (subsequently referred to as 'server') is designed 
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file.  It can read an optional configuration file created by the user (see below).
 
-### Latest Update
-The latest update includes these enhancements:
-- standardized logging output with control of console vs file logging
-- configurable timeout for forwarded requests
-- forwarding of request body data and HTTP headers
-- Optional SmartThings driver device to monitor edgebridge and notify you if down
+### Latest Update (7/29/23)
+Fix to byte encoding length issue affecting response data that contains special character encoding.  Symptom was that Edge driver received truncated response data.
 
 ### Capabilities
 The server includes these capabilities:
