@@ -113,7 +113,7 @@ def http_response(server, code, responsetosend):
         server.send_response(code)
         if len(responsetosend) > 0:
             server.send_header("Content-Type", 'text/xml; charset="utf-8"')
-            server.send_header("Content-Length", str(len(responsetosend)))
+            server.send_header("Content-Length", str(len(bytes(responsetosend, 'UTF-8'))))
         server.send_header("Date", datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT"))
         server.send_header("Server", 'edgeBridge')
         
@@ -182,7 +182,7 @@ def proc_forward (server, method, path, arg):
             
             log.debug (f'Returned data: {r.text}')
             http_response(server, 200, r.text)
-            log.info ('Response returned to Edge driver')
+            log.info (f'Response returned to Edge driver (bytes len={len(bytes(r.text, "UTF-8"))})')
             
         else:
             log.warn (f'HTTP error returned: {r.status_code}')
