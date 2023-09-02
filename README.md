@@ -2,14 +2,10 @@
 ## Description
 The forwarding bridge server (subsequently referred to as 'server') is designed as a companion to SmartThings Edge drivers that (1) need to send HTTP requests to destinations outside of the LAN, and/or (2) need to be able to receive extemperaneous HTTP messages issued by LAN-based devices and applications.
 
-The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file.  It can read an optional configuration file created by the user (see below).
+The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file (32 bit and 64 bit).  It can read an optional configuration file created by the user (see below).
 
-### Latest Update
-The latest update includes these enhancements:
-- standardized logging output with control of console vs file logging
-- configurable timeout for forwarded requests
-- forwarding of request body data and HTTP headers
-- Optional SmartThings driver device to monitor edgebridge and notify you if down
+### Latest Update (7/29/23)
+Fix to byte encoding length issue affecting response data that contains special character encoding.  Symptom was that Edge driver received truncated response data.
 
 ### Capabilities
 The server includes these capabilities:
@@ -68,7 +64,8 @@ This application comes in three forms:
 
 * edgebridge.py:  Python 3.x script (for any OS platform supporting Python 3)
 * edgebridge.exe:  Windows executable (built for Windows 10)
-* edgebridge4pi:  Raspberry Pi executable (for OS = Raspbian GNU/Linux 10 (buster), CPU = ARMv7)
+* edgebridge4pi:  Raspberry Pi executable for 32-bit OS (for OS = Raspbian GNU/Linux 10 (buster), CPU = ARMv7)
+* edgebridge4pi64:  Raspberry Pi executable for 64-bit OS
 
 If you have a Raspberry Pi with Python 3.x you can run the Python script, but if you don't have Python 3.x, you can use the executable.
 
