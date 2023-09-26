@@ -44,6 +44,9 @@ A SmartThings Edge driver to provide weather data uses this bridge server to pro
 
 Both of the following two example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors** (https://github.com/toddaustin07/lanmotion).
 
+#### PurpleAir
+This air quality driver is available [here](https://github.com/toddaustin07/PurpleAir), and provides air quality index using sensor data available through [PurpleAir](https://www2.purpleair.com/)
+
 #### Shelly Motion Sensor
 There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.  *UPDATE:  my dedicated Shelly Edge driver now supports most common Gen 1 Shelly devices, including the motion sensor!*
 #### Blue Iris camera
