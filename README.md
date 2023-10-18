@@ -4,6 +4,12 @@ The forwarding bridge server (subsequently referred to as 'server') is designed 
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file (32 bit and 64 bit).  It can read an optional configuration file created by the user (see below).
 
+#### New Test version available to support PUT (9/3/23)
+In the **TestVersion** folder, there are Python and Windows executable files that add HTTP **PUT** support for internet forwarding.  Example HTTP message format would be:
+```
+PUT http://192.168.1.140:8088/api/forward?url=https://www.somesite.com/update?key1=key1value&key2=key2value
+```
+
 ### Latest Update (7/29/23)
 Fix to byte encoding length issue affecting response data that contains special character encoding.  Symptom was that Edge driver received truncated response data.
 
@@ -37,6 +43,9 @@ Examples for how these might be used are included in the use cases below, which 
 A SmartThings Edge driver to provide weather data uses this bridge server to provide current weather conditions and weather forecasts.  The data is retrieved from various internet weather sources that publish access APIs.
 
 Both of the following two example use cases can be implemented, with this bridge server, using my **Edge driver for LAN-based motion sensors** (https://github.com/toddaustin07/lanmotion).
+
+#### PurpleAir
+This air quality driver is available [here](https://github.com/toddaustin07/PurpleAir), and provides air quality index using sensor data available through [PurpleAir](https://www2.purpleair.com/).  It uses edgebridge's forwarding function to reach the PurpleAir API.
 
 #### Shelly Motion Sensor
 There is currently no official local integration of Shelly's wifi Motion Sensors with SmartThings. There are cloud integrations available for other Shelly devices, but as of this writing there are none that support their motion sensor product.  These devices can be configured to send an HTTP message to a given IP/Port whenever motion or tampering is detected.  With this solution, the device can be configured to send these messages to the server, which will then forward them to registered Edge drivers.  *UPDATE:  my dedicated Shelly Edge driver now supports most common Gen 1 Shelly devices, including the motion sensor!*
