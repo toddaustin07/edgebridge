@@ -22,7 +22,7 @@
 # Reads 'edgebridge.conf' user config file for configuration options (server port, SmartThings Token)
 # Creates and updates '.registrations' file for maintaining Edge driver registration list
 #
-VERSION = '1.2328081200'
+VERSION = '1.2318101200'
 
 import http.server
 import datetime
@@ -35,6 +35,7 @@ import sys
 import platform
 import configparser
 import json
+import ipaddress
 
 registrations = []
 hubsenderrors = {}
@@ -521,9 +522,11 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 def process_config(config_filename):
 
     global SERVER_PORT
+    global SERVER_IP
     global SMARTTHINGS_TOKEN
     global log
     
+    SERVER_IP = ''
     SERVER_PORT = DEFAULT_SERVERPORT
     SMARTTHINGS_TOKEN = DEFAULT_ST_TOKEN
     conoutp = True
@@ -534,6 +537,17 @@ def process_config(config_filename):
 
     parser = configparser.ConfigParser()
     if parser.read(CONFIG_FILE_PATH):
+        
+        try:
+            config_ip = parser.get('config', 'Server_IP')
+            try:
+                config_ip = ipaddress.ip_address(parser.get('config', 'Server_IP'))
+                SERVER_IP = config_ip
+            except ValueError:
+                print (f'\n\033[93mInvalid Server IP address in config file; using detected IP\033[0m\n')
+            
+        except:
+            pass
         
         try:
             config_port = int(parser.get('config', 'Server_Port'))
@@ -597,21 +611,22 @@ if __name__ == '__main__':
     ServerClass = http.server.HTTPServer
 
     try:
-        httpd = ServerClass(('', SERVER_PORT), HandlerClass)
+        httpd = ServerClass((str(SERVER_IP), SERVER_PORT), HandlerClass)
     except OSError as error :
         log.error (f'ERROR: cannot initialize Server; {error}')
-        log.warn (f'Port {SERVER_PORT} may be in use by another application\n')
+        log.warn (f'Invalid IP address or Port {SERVER_PORT} may be in use by another application\n')
         httpd = False
 
     if httpd:
-        # Trick to get our IP address
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        myipAddress =  s.getsockname()[0]
-        s.close()
+        if SERVER_IP == '':
+            # Trick to get our IP address
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            SERVER_IP =  s.getsockname()[0]
+            s.close()
 
         log.hilite (f"Forwarding Bridge Server v{VERSION} (for SmartThings Edge)")
-        log.hilite (f" > Serving HTTP on {myipAddress}:{SERVER_PORT}")
+        log.hilite (f" > Serving HTTP on {SERVER_IP}:{SERVER_PORT}")
 
         try: 
             httpd.serve_forever()    # wait for, and process HTTP requests
