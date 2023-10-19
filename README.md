@@ -4,11 +4,15 @@ The forwarding bridge server (subsequently referred to as 'server') is designed 
 
 The server itself is simply a Python script that can be run on any 'always on' Windows/Linux/Mac/Raspberry Pi computer.  The server is provided as a 3.7x Python source script, a Windows executable program file, or a Raspberry Pi OS executable program file (32 bit and 64 bit).  It can read an optional configuration file created by the user (see below).
 
-#### New Test version available to support PUT (9/3/23)
-In the **TestVersion** folder, there are Python and Windows executable files that add HTTP **PUT** support for internet forwarding.  Example HTTP message format would be:
-```
-PUT http://192.168.1.140:8088/api/forward?url=https://www.somesite.com/update?key1=key1value&key2=key2value
-```
+#### 10/19/23 Updates
+* HTTP **PUT** support for internet forwarding
+  ```
+  PUT http://192.168.1.140:8088/api/forward?url=https://www.somesite.com/update?key1=key1value&key2=key2value
+  ```
+* New optional config file entry to specify server IP address
+  ```
+  Server_IP=192.168.1.140
+  ```
 
 ### Latest Update (7/29/23)
 Fix to byte encoding length issue affecting response data that contains special character encoding.  Symptom was that Edge driver received truncated response data.
