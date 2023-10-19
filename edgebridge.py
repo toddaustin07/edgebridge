@@ -22,7 +22,7 @@
 # Reads 'edgebridge.conf' user config file for configuration options (server port, SmartThings Token)
 # Creates and updates '.registrations' file for maintaining Edge driver registration list
 #
-VERSION = '1.2331031200'
+VERSION = '1.2318101200'
 
 import http.server
 import datetime
@@ -35,6 +35,7 @@ import sys
 import platform
 import configparser
 import json
+import ipaddress
 
 registrations = []
 hubsenderrors = {}
@@ -169,10 +170,16 @@ def proc_forward (server, method, path, arg):
             log.debug (f'Body: {server.data_bytes.decode("utf-8")}')
         
         try:
-            if method in ['post', 'Post', 'POST']:
-                r = requests.post(url, data=server.data_bytes, headers=headers, timeout=FWTIMEOUT)
-            elif method in ['get', 'Get', 'GET']:
-                r = requests.get(url, data=server.data_bytes, headers=headers, timeout=FWTIMEOUT)
+            lc_method = method.lower()
+            if lc_method in ['post', 'put', 'get']:
+                r = getattr(requests, lc_method)(url, data=server.data_bytes, headers=headers, timeout=FWTIMEOUT)
+            
+            #if method in ['post', 'Post', 'POST']:
+            #    r = requests.post(url, data=server.data_bytes, headers=headers, timeout=FWTIMEOUT)
+            #elif method in ['put', 'Put', 'PUT']:
+            #    r = requests.put(url, data=server.data_bytes, headers=headers, timeout=FWTIMEOUT)
+            #elif method in ['get', 'Get', 'GET']:
+            #    r = requests.get(url, data=server.data_bytes, headers=headers, timeout=FWTIMEOUT)
         except requests.Timeout:
             log.error ("Internet request timed out")
             http_response(server, 502, "")
@@ -394,7 +401,10 @@ def proc_register(server, method, arglist):
     write_regs(REGSFILENAME, registrations)
 
 
-def handle_requests(server, method, path, devaddraddr_tuple):
+def handle_requests(server):
+    
+    method = server.command
+    path = server.path
 
     if '?' in path:
         arg = path.split('?')
@@ -460,6 +470,21 @@ def proc_registered_requests(server):
     
     else:
         return False
+        
+        
+def proc_msg(server):
+        
+    log.info ('**********************************************************************************')
+    log.info (f'{server.command} request received from: {server.client_address}')
+    log.debug (f'Endpoint: {server.path}')
+    
+    server.data_bytes = None
+    if 'Content-Length' in server.headers:
+        server.data_bytes = server.rfile.read(int(server.headers['Content-Length']))
+        
+    if not proc_registered_requests(server):
+        handle_requests(server)
+
 
 class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
@@ -471,50 +496,24 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             http_response(self, 200, "")
             return
         
-        log.info ('**********************************************************************************')
-        log.info (f'{self.command} request received from: {self.client_address}')
-        log.debug (f'Endpoint: {self.path}')
-        
-        self.data_bytes = None
-        if 'Content-Length' in self.headers:
-            self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
+        else:
+            proc_msg(self)
             
+            
+    def do_PUT(self):
         
-        if not proc_registered_requests(self):
-        
-            handle_requests(self, 'POST', self.path, self.client_address)
+        proc_msg(self)
         
         
     def do_GET(self):
         
-        # If a ping, just send response and don't display any messages
-        if '/api/ping' in self.path:
-            log.debug ('Pingreq')
-            http_response(self, 200, "")
-            return
+        proc_msg(self)
         
-        log.info ('**********************************************************************************')
-        log.info (f'{self.command} request received from: {self.client_address}')
-        log.debug (f'Endpoint: {self.path}')
-        #print ('Headers:\n', self.headers)
-        #print ('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        
-        self.data_bytes = None
-        if 'Content-Length' in self.headers:
-            self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
-            #print ('Data:\n',self.data_bytes)
-        
-        if not proc_registered_requests(self):
-            
-            handle_requests(self, 'GET', self.path, self.client_address)
-
 
     def do_DELETE(self):
-        log.info ('**********************************************************************************')
-        log.info (f'{self.command} request received from: {self.client_address}')
-        log.debug (f'Endpoint: {self.path}')
         
-        handle_requests(self, 'DELETE', self.path, self.client_address)
+        proc_msg(self)
+        
 
     def log_message(self, format, *args):
         return
@@ -523,9 +522,11 @@ class myHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 def process_config(config_filename):
 
     global SERVER_PORT
+    global SERVER_IP
     global SMARTTHINGS_TOKEN
     global log
     
+    SERVER_IP = ''
     SERVER_PORT = DEFAULT_SERVERPORT
     SMARTTHINGS_TOKEN = DEFAULT_ST_TOKEN
     conoutp = True
@@ -536,6 +537,17 @@ def process_config(config_filename):
 
     parser = configparser.ConfigParser()
     if parser.read(CONFIG_FILE_PATH):
+        
+        try:
+            config_ip = parser.get('config', 'Server_IP')
+            try:
+                config_ip = ipaddress.ip_address(parser.get('config', 'Server_IP'))
+                SERVER_IP = config_ip
+            except ValueError:
+                print (f'\n\033[93mInvalid Server IP address in config file; using detected IP\033[0m\n')
+            
+        except:
+            pass
         
         try:
             config_port = int(parser.get('config', 'Server_Port'))
@@ -599,21 +611,22 @@ if __name__ == '__main__':
     ServerClass = http.server.HTTPServer
 
     try:
-        httpd = ServerClass(('', SERVER_PORT), HandlerClass)
+        httpd = ServerClass((str(SERVER_IP), SERVER_PORT), HandlerClass)
     except OSError as error :
         log.error (f'ERROR: cannot initialize Server; {error}')
-        log.warn (f'Port {SERVER_PORT} may be in use by another application\n')
+        log.warn (f'Invalid IP address or Port {SERVER_PORT} may be in use by another application\n')
         httpd = False
 
     if httpd:
-        # Trick to get our IP address
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        myipAddress =  s.getsockname()[0]
-        s.close()
+        if SERVER_IP == '':
+            # Trick to get our IP address
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            SERVER_IP =  s.getsockname()[0]
+            s.close()
 
         log.hilite (f"Forwarding Bridge Server v{VERSION} (for SmartThings Edge)")
-        log.hilite (f" > Serving HTTP on {myipAddress}:{SERVER_PORT}")
+        log.hilite (f" > Serving HTTP on {SERVER_IP}:{SERVER_PORT}")
 
         try: 
             httpd.serve_forever()    # wait for, and process HTTP requests
