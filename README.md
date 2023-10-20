@@ -14,9 +14,6 @@ The server itself is simply a Python script that can be run on any 'always on' W
   Server_IP=192.168.1.140
   ```
 
-### Latest Update (7/29/23)
-Fix to byte encoding length issue affecting response data that contains special character encoding.  Symptom was that Edge driver received truncated response data.
-
 ### Capabilities
 The server includes these capabilities:
 #### 1. Forward HTTP requests from an Edge driver to any URL
